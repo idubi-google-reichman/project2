@@ -1,0 +1,9 @@
+Flask
+Flask-SocketIO 
+tensorflow
+flask-cors
+
+
+
+
+

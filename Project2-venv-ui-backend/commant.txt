@@ -1,0 +1,12 @@
+pip install Flask Flask-SocketIO tensorflow
+
+
+npx create-react-app tf-training-ui
+cd tf-training-ui
+npm install socket.io-client
+
+docker run -i -t -p 8888:8888 --name miniconda3 continuumio/miniconda3 /bin/bash -c "/opt/conda/bin/conda install jupyter -y --quiet && mkdir /opt/notebooks && /opt/conda/bin/jupyter notebook --notebook-dir=/opt/notebooks --ip='*' --port=8888 --no-browser --allow-root"
+docker run -i -t -p 8889:8888 --name conda3 continuumio/anaconda3 /bin/bash -c "/opt/conda/bin/conda install jupyter -y --quiet && mkdir /opt/notebooks && /opt/conda/bin/jupyter notebook --notebook-dir=/opt/notebooks --ip='*' --port=8888 --no-browser --allow-root"
+
+
+docker exec -it conda3 -c "jupyter notebook --ip='*' --port=8888 --no-browser --allow-root"
