@@ -11,7 +11,7 @@ from classification_models.tfkeras import Classifiers
 # from classification_models.keras import Classifiers
 
 
-def set_seed(seed=const.SEED):
+def set_model_seed(seed=const.SEED):
     tf.random.set_seed(seed)
 
 

@@ -3,12 +3,9 @@ import random
 import numpy as np
 import app_const as const
 
-# import tensorflow as tf
-# from utils.plot_utils import (
-#     plot_training_history,
-#     print_training_report,
-# )
-# from utils.dataset_utils import load_dataset
+
+from utils.plot_utils import plot_training_history
+from utils.dataset_utils import load_dataset
 from utils.model_utils import (
     create_model,
     train_model,
@@ -16,12 +13,67 @@ from utils.model_utils import (
     set_model_seed,
 )
 
-# from utils.timing_utils import capture_and_time
-# from sklearn.linear_model import LogisticRegression
+from utils.timing_utils import capture_and_time
+from prettytable import PrettyTable
+
+import tensorflow as tf
 
 
-# # Set the random seeds
-def set_seed(seed=const.DEES):
+def print_execution_summery(
+    profile, history, test_loss, test_accuracy, train_execution_time
+):
+    history_dict = history.history
+    # Extract the last epoch's metrics from the history
+    val_accuracy = history_dict["val_accuracy"][-1]
+    val_loss = history_dict["val_loss"][-1]
+
+    table = PrettyTable()
+    # Print the organized table
+    table.field_names = [
+        "Validation",
+        "Test",
+        "Inference",
+    ]
+    sub_headers = [
+        "acc | loss",
+        "acc | loss",
+        "Time (sec)",
+    ]
+    table.add_row(sub_headers)
+    table.add_row(["-" * 22, "-" * 22, "_" * 10])
+
+    table.add_row(
+        [
+            f"{val_accuracy:.4f} | {val_loss:.4f}",
+            f"{test_accuracy:.4f} | {test_loss:.4f}",
+            f"{train_execution_time:.4f} sec",
+        ]
+    )
+
+    print(" ===================================")
+
+    print(" ===================================")
+    print(" execution summery for profile : ", profile["NAME"])
+    print(" ===================================")
+
+    print(table)
+
+    print(" validation split : ", profile["TRAIN_VALIDATION_SPLIT"])
+    print(" reduce factor    : ", profile["TRAIN_DECREASE_FACTOR"])
+    print(" number of epocs  : ", profile["TRAIN_EPOCHS"])
+    print(" batch size       : ", profile["BATCH_SIZE"])
+    print(" learning rate    : ", profile["LEARNING_RATE"])
+    print(" is freeze model  : ", profile["FREEZE_MODEL"])
+    print(" loss function    : ", profile["LOSS_FUNCTION"])
+    print(" dataset name     : ", profile["DATASET_NAME"])
+    print(" random seed      : ", profile["SEED"])
+
+    return
+
+
+# Set the random seeds - if no seed is provided,
+# the default value from app_const.py is used
+def set_seed(seed=const.SEED):
     # Set the random seeds
     os.environ["PYTHONHASHSEED"] = str(
         seed
@@ -32,55 +84,51 @@ def set_seed(seed=const.DEES):
     return
 
 
-# # Load the dataset
-# train_images, train_labels, val_images, val_labels, test_images, test_labels = (
-#     load_dataset(
-#         # Load the dataset dynamically using getattr
-#         dataset_name=const.DATASET_NAME,
-#         validation_split=const.TRAIN_VALIDATION_SPLIT,
-#         dec_factor=const.TRAIN_DECREASE_FACTOR,
-#     )
-# )
+def execute_profile(device_name, profile):
+    set_seed(profile["SEED"])
+    # Load the dataset
+    train_images, train_labels, val_images, val_labels, test_images, test_labels = (
+        load_dataset(
+            dataset_name=profile["DATASET_NAME"],
+            validation_split=profile["TRAIN_VALIDATION_SPLIT"],
+            dec_factor=profile["TRAIN_DECREASE_FACTOR"],
+        )
+    )
 
+    with tf.device(device_name):
+        model, model_execution_time = capture_and_time(
+            func=create_model,
+            train_images=train_images,
+            image_size=profile["IMAGE_SIZE"],
+        )
+        print(f"Model creation time: { model_execution_time} seconds")
 
-# # Create the backbone model that will be used to train
-# with tf.device("GPU"):
-#     model, model_execution_time = capture_and_time(
-#         create_model, train_images=train_images, image_size=const.IMAGE_SIZE
-#     )
-#     print(f"Model creation time: { model_execution_time} seconds")
+        # Do the actual training
+        history, model_train_execution_time = capture_and_time(
+            func=train_model,
+            model=model,
+            train_data=(train_images, train_labels),
+            validation_data=(val_images, val_labels),
+            epochs=profile["TRAIN_EPOCHS"],
+            batch_size=profile["BATCH_SIZE"],
+        )
 
-#     # Do the actual training
-#     history, model_train_execution_time = capture_and_time(
-#         train_model,
-#         model=model,
-#         train_data=(train_images, train_labels),
-#         validation_data=(val_images, val_labels),
-#         epochs=const.TRAIN_EPOCHS,
-#         batch_size=const.BATCH_SIZE,
-#     )
+        print(f"Model train time: { model_train_execution_time} seconds")
 
-#     print(f"Model train time: { model_train_execution_time} seconds")
+        # Evaluate
+        # training_stats , evaluation_execution_time=
+        test_loss, test_acc = evaluate_model(
+            model=model,
+            test_data=(test_images, test_labels),
+            log_detailed_level=profile["LOG_DETAILS"],
+        )
 
-#     # Evaluate
-#     # training_stats , evaluation_execution_time=
-#     test_loss, test_acc = evaluate_model(
-#         model=model,
-#         test_data=(test_images, test_labels),
-#         log_detailed_level=const.LOG_DETAILS["VERBOS"],
-#     )
+        print_execution_summery(
+            profile=profile,
+            test_accuracy=test_acc,
+            test_loss=test_loss,
+            history=history,
+            train_execution_time=model_train_execution_time,
+        )
 
-#     print_training_report(
-#         test_accuracy=test_acc,
-#         test_loss=test_loss,
-#         history=history,
-#         train_execution_time=model_train_execution_time,
-#     )
-
-#     plot_training_history(history=history)
-
-
-def execute_profile(profile_name):
-    profile = const.PROFILES[profile_name]
-    print("executing Profile : ", profile)
-    set_seed(profile.get("SEED", const.SEED))
+        plot_training_history(history=history)

@@ -23,3 +23,8 @@ examples/**/*.jpg
 node_modules
 **/public/**
 **/.history/**
+**/.venv310/**
+*/backup/*
+*/mydata*/*
+.zip
+*pictures*/
