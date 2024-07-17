@@ -1,0 +1,4 @@
+
+docker run -it --name=label-studio  -p 8080:8080 -v "d:/projects/AI/deep-learning-class/project2/label-studio/mydatadata":/label-studio/data heartexlabs/label-studio:latest
+
+ido.bistry@gmail.com/HA..89

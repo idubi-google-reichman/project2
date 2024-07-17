@@ -26,5 +26,5 @@ node_modules
 **/.venv310/**
 */backup/*
 */mydata*/*
-.zip
+*.zip
 *pictures*/
