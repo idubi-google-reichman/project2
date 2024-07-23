@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def plot_training_history(history):
+def plot_training_history(history, save_path=None):
     """
     Plots the training and validation accuracy and loss per epoch.
 
@@ -36,4 +36,7 @@ def plot_training_history(history):
     plt.legend()
 
     plt.tight_layout()
-    plt.show()
+    if not save_path:
+        plt.show()
+    else:
+        plt.savefig(f"{save_path}.png", format="png")

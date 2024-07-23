@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import app_const as const
+from dotenv import dotenv_values
 
 
 from utils.plot_utils import plot_training_history
@@ -85,6 +86,7 @@ def set_seed(seed=const.SEED):
 
 
 def execute_profile(device_name, profile):
+
     set_seed(profile["SEED"])
     # Load the dataset
     train_images, train_labels, val_images, val_labels, test_images, test_labels = (
@@ -116,12 +118,20 @@ def execute_profile(device_name, profile):
         print(f"Model train time: { model_train_execution_time} seconds")
 
         # Evaluate
-        # training_stats , evaluation_execution_time=
-        test_loss, test_acc = evaluate_model(
+        # test_loss, test_acc = evaluate_model(
+
+        (test_loss, test_acc), evaluation_execution_time = capture_and_time(
+            func=evaluate_model,
             model=model,
             test_data=(test_images, test_labels),
-            log_detailed_level=profile["LOG_DETAILS"],
+            verbose=const.VERBOSE[profile["VERBOSE_LOG_DETAILS"]],
         )
+
+        # test_loss = test_result[0]
+        # test_acc = test_result[1]
+
+        print(f"Model evaluate time: { evaluation_execution_time} seconds")
+        print(f"Model evaluate loss: { test_loss } accuracy: { test_acc }")
 
         print_execution_summery(
             profile=profile,
