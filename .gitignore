@@ -30,3 +30,4 @@ node_modules
 *pictures*/
 *.png
 **/resources/**
+# **/R_and_D/**
