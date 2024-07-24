@@ -1,2 +1,3 @@
-# project2
-# project2
+# Project 2 - Computer Vision
+
+first part 
