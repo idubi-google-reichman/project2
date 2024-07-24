@@ -1,6 +1,9 @@
 import os
 import textwrap
 from datetime import datetime
+import app_const as const
+import stat
+import argparse
 
 # from dotenv import load_dotenv
 from entities.ProfileModelFactory import ModelFactory
@@ -16,10 +19,8 @@ from profiles import PROFILES
 # Function to get device pointer
 # we search for gpu and if we find it we return it
 # if notthen we return the cpu pointer
-
-
-def get_active_device_name():
-    if tf.config.list_physical_devices("GPU"):
+def get_active_device_name(allow_gpu=True):
+    if allow_gpu and tf.config.list_physical_devices("GPU"):
         return "/device:GPU:0"  # Assuming the first GPU is desired
     else:
         return "/device:CPU:0"
@@ -187,6 +188,7 @@ def set_execution_path(base_path):
     fullpath = f"{base_path}{date_str}/{time_str}/"
     if not os.path.exists(fullpath):
         os.makedirs(fullpath)
+        os.chmod(fullpath, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
     return fullpath
 
 
@@ -210,11 +212,15 @@ def execute_all_profiles(
                 LOG_LEVEL["INFO"],
             )
             print_profile_in_table(last_profile)
+            # ···························································
+            # :    EXECUTE THE PROFILE  - create model and test it      :
+            # ···························································
             prepare_and_test_profile(
                 device_name=device_name,
                 profile_data=last_profile,
                 save_path=save_path,
             )
+            # -----------------------------------------------------------
         else:
             LoggerUtility.log_message(
                 f"profile_{profile_name}",
@@ -223,18 +229,69 @@ def execute_all_profiles(
             )
 
 
-# load the environment variables - not in use yet
-# load_dotenv("./resources/env/.env.dev")
+# region - taking care of configuration
 
 
-execution_path = set_execution_path("./resources/executions/")
-# Get the active device name - if gpu us available or cpu only
-device_name = get_active_device_name()
-# Configure the logger once at the start of your application
-LoggerUtility.configure_logger(
-    log_level=LOG_LEVEL["DEBUG"], log_file_path=f"{execution_path}"
+# load the environment variables file ./resources/.env
+# load_dotenv("./resources/.env")
+# setting command line parser
+parser = argparse.ArgumentParser()
+
+
+# taking care of config mechanism priority :
+# 1 - command line arguments
+# 2 - environment variables
+# 3 - const default values
+def get_parameter(parameter_name):
+    return getattr(args, parameter_name)
+
+
+# setting command line arguments
+parser.add_argument(
+    "--execution_set",
+    default=const.EXECUTION_SET,
+    type=str,
+    help=f"execution list of profiles to execute (default {const.EXECUTION_SET}",
+),
+parser.add_argument(
+    "--log_level",
+    default=const.LOG_LEVEL,
+    choices=LOG_LEVEL.keys(),
+    type=str,
+    help=f"log level to use (either one of : DEBUG, INFO, WARNING, ERROR, CRITICAL) default {const.LOG_LEVEL} ",
+),
+parser.add_argument(
+    "--execution_path",
+    default=const.EXECUTION_PATH,
+    type=str,
+    help=f"path for logs and plots default {const.EXECUTION_PATH}   ",
+)
+parser.add_argument(
+    "--use_gpu",
+    default="True",
+    type=str,
+    choices=["True", "False", "true", "false", "TRUE", "FALSE"],
+    help=f"use gpu if available or cpu only (default : True )",
 )
 
+
+args = parser.parse_args()
+
+
+# endregion - taking care of configuration
+
+
+execution_path = set_execution_path(get_parameter("execution_path"))
+log_level_name = get_parameter("log_level")
+allow_gpu = get_parameter("use_gpu").lower() == ("true")
+
+# Get the active device name - if gpu us available or cpu only
+device_name = get_active_device_name(allow_gpu=allow_gpu)
+# Configure the logger once at the start of your application
+
+LoggerUtility.configure_logger(
+    log_level=LOG_LEVEL[log_level_name], log_file_path=f"{execution_path}"
+)
 # execute the profiles
 # examples :
 # --------------------------------------------------------------------------------------------
@@ -242,7 +299,10 @@ LoggerUtility.configure_logger(
 #    - execution_set = {"3.C", "3.E"}  --> only this 2 profiles will be executed
 #    - execution_set = {"3.E"}  --> only 3.E profile will be executed
 # --------------------------------------------------------------------------------------------
-execution_set = {"3.E"}
+execution_set = set(get_parameter("execution_set").split(","))
+
 execute_all_profiles(
-    device_name=device_name, execution_set=execution_set, save_path=f"{execution_path}"
+    device_name=device_name,
+    execution_set=execution_set,
+    save_path=f"{execution_path}",
 )

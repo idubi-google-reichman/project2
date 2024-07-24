@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from utils.logging_utils import LoggerUtility, LOG_LEVEL
 
 
 def plot_training_history(history, save_path=None):
@@ -39,4 +40,9 @@ def plot_training_history(history, save_path=None):
     if not save_path:
         plt.show()
     else:
+        LoggerUtility.log_message(
+            "plot_utility",
+            f"Saving plot to {save_path}.png",
+            LOG_LEVEL["INFO"],
+        )
         plt.savefig(f"{save_path}.png", format="png")
