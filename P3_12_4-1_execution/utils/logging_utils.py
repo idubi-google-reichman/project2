@@ -1,5 +1,5 @@
 import logging
-import app_const as const
+
 import sys
 
 
@@ -10,7 +10,13 @@ class LoggerUtility:
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             handlers=[
                 logging.StreamHandler(),
+                (
+                    logging.FileHandler(f"{log_file_path}app.log")
+                    if log_file_path
+                    else logging.StreamHandler(sys.stdout)
+                ),
             ],
+            level=log_level,
         )
 
     @staticmethod

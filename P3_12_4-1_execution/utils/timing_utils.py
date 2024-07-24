@@ -26,4 +26,4 @@ def convert_count_time_to_human(elapsed_time):
     hours, minutes = divmod(minutes, 60)
     milliseconds = (seconds - int(seconds)) * 1000
 
-    return f"{int(hours)} (H):{int(minutes)} (Mi):{int(seconds)} (Sec):{milliseconds:.0f} (ms)"
+    return f" total:{elapsed_time:.2f} sec {int(hours)} (H):{int(minutes)} (Mi):{int(seconds)} (Sec):{milliseconds:.0f} (ms)"

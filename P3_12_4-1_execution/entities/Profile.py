@@ -8,7 +8,19 @@ import numpy as np
 import app_const as const
 import tensorflow as tf
 from tensorflow.keras import models, layers
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import (
+    Adam,
+    SGD,
+    RMSprop,
+    Adagrad,
+    RMSprop,
+    Adadelta,
+    Adamax,
+    Nadam,
+    Ftrl,
+)
+from io import StringIO
+
 from keras.layers import Resizing, Dense, Dropout, RandomFlip, GlobalAveragePooling2D
 from entities.ENeuralNetworkError import (
     ENeuralNetworkError,
@@ -16,7 +28,7 @@ from entities.ENeuralNetworkError import (
     ENeuralNetworkArchitectureError,
 )
 from utils.timing_utils import capture_and_time, convert_count_time_to_human
-from utils.model_utils import get_optimizer
+
 from utils.logging_utils import LoggerUtility, LOG_LEVEL
 from utils.plot_utils import plot_training_history
 from prettytable import PrettyTable
@@ -55,12 +67,36 @@ class Profile(ABC):
         tf.random.set_seed(seed)
         return
 
+    def get_optimizer(self, optimizer_name="adam", learning_rate=0.001):
+        match optimizer_name:
+            case "adam":
+                return Adam(learning_rate=learning_rate)
+            case "sgd" | "gradient_descent":
+                return SGD(learning_rate=learning_rate)
+            case "rmsprop":
+                return RMSprop(learning_rate=learning_rate)
+            case "adagrad":
+                return Adagrad(learning_rate=learning_rate)
+            case "adadelta":
+                return Adadelta(learning_rate=learning_rate)
+            case "adamax":
+                return Adamax(learning_rate=learning_rate)
+            case "nadam":
+                return Nadam(learning_rate=learning_rate)
+            case "ftrl":
+                return Ftrl(learning_rate=learning_rate)
+            case default:
+                return Adam(learning_rate=learning_rate)  # default optimizer Adam
+
     def compile_model(self):
         if self.status.value < ModelStatus.BUILT.value:
             raise ENeuralNetworkProcessError(
                 "Model is not built. Please build the model before compiling."
             )
-        optimizer = get_optimizer(self.optimizer_name, self.learning_rate)
+        optimizer = self.get_optimizer(
+            self.optimizer_name,
+            self.learning_rate,
+        )
         loss_function = self.loss_function
         device = self.device_name
         with tf.device(device):
@@ -212,25 +248,47 @@ class Profile(ABC):
                 ]
             )
 
-        print(" ===================================")
+        summery_message = ""
+        # Create a StringIO object
+        buffer = StringIO()
 
-        # until here trained is mandatory
+        LoggerUtility.log_message(
+            f"profile_{self.name} summery table",
+            " ===================================",
+            LOG_LEVEL["INFO"],
+        )
+        LoggerUtility.log_message(
+            f"profile_{self.name} summery table",
+            " execution summery for profile : ",
+            LOG_LEVEL["INFO"],
+        )
+        LoggerUtility.log_message(
+            f"profile_{self.name} summery table",
+            " ===================================",
+            LOG_LEVEL["INFO"],
+        )
 
-        print(" ===================================")
-        print(" execution summery for profile : ", self.name)
-        print(" ===================================")
+        LoggerUtility.log_message(
+            f"profile_{self.name} summery table",
+            f" \n{table}",
+            LOG_LEVEL["INFO"],
+        )
 
-        print(table)
+        buffer.write(f" \n validation split : { self.train_validation_split}")
+        buffer.write(f" \n  reduce factor    : { self.train_decrease_factor}")
+        buffer.write(f" \n  number of epocs  : { self.train_epochs}")
+        buffer.write(f" \n  batch size       : { self.batch_size}")
+        buffer.write(f" \n learning rate    : { self.learning_rate}")
+        buffer.write(f" \n is freeze model  : { self.freeze_model}")
+        buffer.write(f" \n loss function    : { self.loss_function}")
+        buffer.write(f" \n dataset name     : { self.dataset_name}")
+        buffer.write(f" \n random seed      : { self.seed}")
 
-        print(" validation split : ", self.train_validation_split)
-        print(" reduce factor    : ", self.train_decrease_factor)
-        print(" number of epocs  : ", self.train_epochs)
-        print(" batch size       : ", self.batch_size)
-        print(" learning rate    : ", self.learning_rate)
-        print(" is freeze model  : ", self.freeze_model)
-        print(" loss function    : ", self.loss_function)
-        print(" dataset name     : ", self.dataset_name)
-        print(" random seed      : ", self.seed)
+        buffer_string = buffer.getvalue()
+
+        LoggerUtility.log_message(
+            f"profile_{self.name}  summery ", buffer_string, LOG_LEVEL["INFO"]
+        )
 
     # region __build_model
 
