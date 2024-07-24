@@ -28,7 +28,7 @@ def get_active_device_name(allow_gpu=True):
 
 # this is the main function that execute the profile
 # create a model out of it and test on it with the dataset
-def prepare_and_test_profile(device_name, profile_data, save_path=None):
+def train_model_with_profile_data(device_name, profile_data, save_path=None):
 
     profile_data["DEVICE_NAME"] = device_name
 
@@ -215,7 +215,7 @@ def execute_all_profiles(
             # ···························································
             # :    EXECUTE THE PROFILE  - create model and test it      :
             # ···························································
-            prepare_and_test_profile(
+            train_model_with_profile_data(
                 device_name=device_name,
                 profile_data=last_profile,
                 save_path=save_path,
