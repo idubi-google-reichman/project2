@@ -9,6 +9,10 @@ git+https://github.com/qubvel/classification_models.git
 python-dotenv
 prettytable==3.10.2
 logger
+numpy
+comet
+comet-ml
+comet_llm
 
 
 #absl-py==2.1.0
