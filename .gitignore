@@ -5,7 +5,7 @@ __pycache__
 **/.vscode-test/**
 **/.vscode test/**
 **/.vscode-smoke/**
-**/.venv*/
+**/.venv*/*
 bin/**
 build/**
 obj/**
@@ -30,5 +30,11 @@ node_modules
 *pictures*/
 *.png
 **/resources/**
-# **/R_and_D/**
+**/R_and_D/**
 *.comet.config
+**/runs/**
+**/resources/**
+**/.nevn-yolo/**
+**/label-studio/**
+**/runs/**
+**/maya coins/**
