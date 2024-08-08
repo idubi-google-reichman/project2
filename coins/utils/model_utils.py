@@ -35,20 +35,3 @@ def find_most_recent_pt_file(pt_file_name="last"):
 # most_recent_best_pt = find_most_recent_pt()
 # if most_recent_best_pt:
 #     print(f"The most recent 'best.pt' file is located at: {most_recent_best_pt}")
-
-
-def save_model_stats(model_evaluation, experiment):
-
-    # Confusion Matrix
-    confusion_matrix = model_evaluation.confusion_matrix
-
-    # Precision, Recall, F1 Score, and PR Curve
-    # precision = model_evaluation.precision  # or results['precision']
-    # recall = model_evaluation.recall  # or results['recall']
-    # f1 = model_evaluation.f1  # or results['f1']
-    # pr_curve = model_evaluation.pr_curve  # or results['pr_curve']
-    LoggerUtility.log_message(
-        f"model-utility - logging model evaluation (experiment {experiment.name}) :",
-        f"confusion matrix :  {confusion_matrix }  \n  ",
-        LOG_LEVEL["INFO"],
-    )

@@ -11,7 +11,7 @@ EXECUTION_MODES = {
     "PREDICT": 5,
 }
 
-ALL_EXECUTION_MODES = "prepare_dataset,train,validate,evaluate,predict"
+ALL_EXECUTION_MODES = "prepare-dataset,train,validate,evaluate,predict"
 DATASET_PATH = "./resources/dataset/data.yaml"
 EXECUTION_PATH = "./resources/executions/"
 

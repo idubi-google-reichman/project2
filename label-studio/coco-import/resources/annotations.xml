@@ -1,9 +1,0 @@
-<View>
-  <Image name="image" value="$image"/>
-  <RectangleLabels name="label" toName="image">
-    <Label value="10 Shekel Coin" background="red"/>
-    <Label value="5 Shekel Coin" background="green"/>
-    <Label value="2 Shekel Coin" background="blue"/>
-    <Label value="1 Shekel Coin" background="yellow"/>
-  </RectangleLabels>
-</View>

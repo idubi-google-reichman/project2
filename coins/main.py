@@ -8,7 +8,7 @@ from datetime import datetime
 import stat
 
 import const
-from utils.model_utils import verify_cuda_enabled, save_model_stats
+from utils.model_utils import verify_cuda_enabled
 from utils.yolo_dataset_utils import prepare_dataset
 from utils.logging_utils import LoggerUtility, LOG_LEVEL
 from utils.plot_utils import plot_and_log_curves, plot_confusion_matrix
@@ -108,10 +108,6 @@ if __name__ == "__main__":
                 )
             if os.path.exists(_data_path):
                 evaluation_results = model.val(data=_data_path)
-                save_model_stats(
-                    model_evaluation=evaluation_results, experiment=experiment
-                )
-
             else:
                 raise Exception(
                     "PARAMETER missing  or invalid : the data path for VALIDATION is not valid"
@@ -126,7 +122,7 @@ if __name__ == "__main__":
                     "PARAMETER missing  or invalid : the weights path for PREDICTION is not valid"
                 )
             if _prediction_path and os.path.exists(_prediction_path):
-                predictions = model.predict(data=_prediction_path)
+                predictions = model.predict(source=_prediction_path)
             elif os.path.exists(_data_path):
                 predictions = model.predict(data=_data_path)
             # LoggerUtility.log_message(
@@ -141,7 +137,9 @@ if __name__ == "__main__":
 # model.train(data="./resources/dataset/data.yaml", epochs=2)
 # model.val(data="./resources/dataset/data.yaml")
 
-# py main.py train --epochs=3 --weight-path=last
-# py main.py validate --weight-path=last
-# py main.py predict --weight-path=last
+# py main.py train --epochs=3 --weight-path=best
+# py main.py validate --weight-path=best
+# py main.py predict --weight-path=best
 # py main.py train --epochs=200 --weight-path=best
+# py main.py predict --weight-path=best --prediction_path=".\resources\dataset\test\images"
+# py main.py predict --weight-path=best --prediction_path="d:\projects\AI\deep-learning-class\project2\coins\resources\dataset\test\images"
