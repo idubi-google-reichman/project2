@@ -21,11 +21,6 @@ from app_args import init_args, get_parameter, get_weight_path
 
 
 def set_execution_path(base_path, command):
-    # now = datetime.now()
-    # date_str = now.strftime("%d%m%Y")
-    # time_str = now.strftime("%H%M%S")
-    # fullpath = f"{base_path}{date_str}/{time_str}/"
-
     fullpath = os.path.join(base_path, command)
     if not os.path.exists(fullpath):
         os.makedirs(fullpath)
@@ -37,6 +32,7 @@ comet_config = COMET.get_comet_configuration()
 if __name__ == "__main__":
     args = init_args()
     if args.help_command:
+        LoggerUtility.log_message("main - args", "")
         exit()
 
     command = get_parameter(args, "command")
@@ -44,17 +40,17 @@ if __name__ == "__main__":
     if (not command) or (command not in const.ALL_EXECUTION_MODES):
         print(f"none of the execution modes {const.ALL_EXECUTION_MODES} is recognized ")
         exit(-1)
-
-    if command != "prepare-dataset":
+    if command == "prepare-dataset":
+        execution_path = get_parameter(args, "path_to_dataset")
+    else:
         execution_path = set_execution_path(const.EXECUTION_PATH, command)
         experiment = COMET.create_experiment(comet_config=comet_config)
-        LoggerUtility.configure_logger(
-            log_level=LOG_LEVEL["INFO"],
-            log_file_path=f"{execution_path}",
-        )
         _weights_path = get_weight_path(args)
 
-    verify_cuda_enabled()
+    LoggerUtility.configure_logger(
+        log_level=LOG_LEVEL["INFO"],
+        log_file_path=f"{execution_path}",
+    )
 
     match command:
         case "prepare-dataset":
@@ -72,14 +68,25 @@ if __name__ == "__main__":
                 valid_pct=_valid_pct,
             )
         case "train":
-
+            verify_cuda_enabled()
             _epochs = get_parameter(args, "epochs")
             _learning_rate = get_parameter(args, "learning_rate")
             _batch_size = get_parameter(args, "batch_size")
             _data_path = get_parameter(args, "data_path")
+            LoggerUtility.log_message(
+                "model train ->  \n ",
+                f"_epochs : {_epochs} /n "
+                + f"_learning_rate : {_learning_rate} /n "
+                + f"_batch_size : {_batch_size} /n "
+                + f"_data_path : {_data_path} /n "
+                + f"_weights_path : {_weights_path}  ",
+                LOG_LEVEL["INFO"],
+            )
 
             if _weights_path and os.path.exists(_weights_path):
                 model = YOLO(model=_weights_path)
+                for param in model.parameters():
+                    param.requires_grad = True
             else:
                 model = YOLO(model="yolov8n.yaml")
 
@@ -97,6 +104,7 @@ if __name__ == "__main__":
                     "PARAMETER missing  or invalid : the data path for TRAIN is not valid"
                 )
         case "validate":
+            verify_cuda_enabled()
             _data_path = get_parameter(args, "data_path")
 
             if _weights_path and os.path.exists(_weights_path):
@@ -113,6 +121,7 @@ if __name__ == "__main__":
                     "PARAMETER missing  or invalid : the data path for VALIDATION is not valid"
                 )
         case "predict":
+            verify_cuda_enabled()
             _data_path = get_parameter(args, "data_path")
             _prediction_path = get_parameter(args, "prediction_path")
             if _weights_path and os.path.exists(_weights_path):
@@ -124,7 +133,7 @@ if __name__ == "__main__":
             if _prediction_path and os.path.exists(_prediction_path):
                 predictions = model.predict(source=_prediction_path)
             elif os.path.exists(_data_path):
-                predictions = model.predict(data=_data_path)
+                predictions = model.predict(source=_data_path)
             # LoggerUtility.log_message(
             #     f"predictions results : {predictions[0]} ", LOG_LEVEL("INFO")
             # )
@@ -143,3 +152,6 @@ if __name__ == "__main__":
 # py main.py train --epochs=200 --weight-path=best
 # py main.py predict --weight-path=best --prediction_path=".\resources\dataset\test\images"
 # py main.py predict --weight-path=best --prediction_path="d:\projects\AI\deep-learning-class\project2\coins\resources\dataset\test\images"
+
+
+# py main.py --help-command=prepare-dataset

@@ -22,10 +22,17 @@ def prepare_dataset(
         train_pct (float, optional): Percentage of files to use for training. Defaults to 0.
         valid_pct (float, optional): Percentage of files to use for validation. Defaults to 0.
     """
+
     # Step 1: validate percentage values
     if valid_pct < 0 or train_pct < 0:
         raise ValueError("train ration cant be negative")
     if (train_pct + valid_pct) > 100:
+        LoggerUtility.log_message(
+            f"dataset-utils",
+            f" prepare_dataset - ERROR : Sum of percentages values is greater than 100 : {train_pct}\%  , validation: {valid_pct}\% ",
+            LOG_LEVEL["ERROR"],
+        )
+
         raise ValueError("Sum of percentages values is greater than 100")
 
     test_pct = 100 - (train_pct + valid_pct)
@@ -148,9 +155,12 @@ def prepare_dataset(
 
         # Update the values
         data["path"] = path_to_dataset
-        data["train"] = os.path.join(path_to_dataset, "train")
-        data["val"] = os.path.join(path_to_dataset, "valid")
-        data["test"] = os.path.join(path_to_dataset, "test")
+        # data["train"] = os.path.join(path_to_dataset, "train")
+        # data["val"] = os.path.join(path_to_dataset, "valid")
+        # data["test"] = os.path.join(path_to_dataset, "test")
+        data["train"] = "./train"
+        data["val"] = "./valid"
+        data["test"] = "./test"
 
         # Write the updated data back to the YAML file
         with open(os.path.join(path_to_dataset, "data.yaml"), "w") as file:

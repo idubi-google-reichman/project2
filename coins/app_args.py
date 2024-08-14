@@ -7,42 +7,42 @@ from utils.model_utils import find_most_recent_pt_file
 
 def get_args_help(arg_type):
     msg = ""
-    header = f"app parameters for {arg_type} :"
+    header = f"app parameters for"
     # fmt: off
     match arg_type:
         case "prepare-dataset":
-            msg = f"{arg_type}  \n"                                                                         \
-            f"----------------------- \n"                                                                   \
-            f"  --path_to_base                - path to base dataset used as a blueprint for execution \n"  \
-            f"  --path_to_dataset             - path to dispatch new dataset to be executed on \n"          \
-            f"  --use_pct                     - portion of base dataset to use \n"                          \
-            f"  --train_pct                   - % of dataset prepared for training \n"                      \
-            f"  --valid_pct                   - % of dataset prepared for validation \n"                    
-
+            msg = f"{arg_type} : \n" \
+            f"----------------------------------------- \n" \
+            f"  --path_to_base   (default : ./resources/base_dataset) - path to base dataset used as a blueprint for execution \n" \
+            f"  --path_to_dataset  (default : ./resources/dataset) - path to dispatch new dataset to be executed on \n" \
+            f"  --use_pct   (default {const.DATASET_USE_PCT} ) - portion of base dataset to use \n" \
+            f"  --train_pct (default {const.TRAIN_PCT}) - % of dataset prepared for training \n" \
+            f"  --valid_pct (default {const.VALIDATION_PCT}) - % of dataset prepared for validation \n"
+            
         case "train":
-            msg = f"{arg_type}  \n"                                                                              \
-            f"----------------------- \n"                                                                        \
-            f"  --batch_size                 - batch size for each iteration \n "                                \
-            f"  --learning_rate              - learning rate for training -need to be as small as possible \n "  \
-            f"  --epochs                     - # epochs to execute   \n "                                        \
+            msg = f"{arg_type} : \n" \
+            f"----------------------------------------- \n" \
+            f"  --batch_size  (default {const.BATCH} ) - batch size for each iteration \n" \
+            f"  --learning_rate (default {const.LEARNING_RATE} ) - learning rate for training -need to be as small as possible \n" \
+            f"  --epochs (default {const.EPOCHS} ) - # epochs to execute   \n" \
             f"  --weights_path(default=none) - (none/best/last/[path]) path to previous trainings weights files \n" \
-            f"  --data_path                  - path to data yaml execution file  \n " 
+            f"  --data_path (default ./resources/dataset/data.yaml ) - path to data yaml execution file  \n"
 
             
         case "validate":
-            msg = f"{arg_type}  \n"                                                           \
-            f"----------------------- \n"                                                     \
-            f"  --weights_path (required)  -  best/last/[path] -  path to previous trainings weights files \n "  \
-            f"  --data_path  (default {const.DATASET_PATH} )   -  path to dataset for validation , where data-config-yaml is available \n "                 
+            msg = f"{arg_type} : \n" \
+            f"----------------------------------------- \n" \
+            f"  --weights_path (required)  -  best/last/[path] -  path to previous trainings weights files \n" \
+            f"  --data_path  (default {const.DATASET_PATH} )   -  path to dataset for validation , where data-config-yaml is available \n"
             
 
             
         case "predict":
-            msg = f"{arg_type}  \n"                                                                     \
-            f"----------------------- \n"                                                               \
-            f"  --weights_path    (required) --  best/last/[path] -  path to previous trainings weights files \n "  \
-            f"  --data_path  (default {const.DATASET_PATH} )   - path to data yaml execution file  \n " 
-            f"  --prediction_path (required) - path to file / folder to be predicted \n "
+            msg = f"{arg_type}  : \n" \
+            f"----------------------------------------- \n" \
+            f"  --weights_path    (required) --  best/last/[path] -  path to previous trainings weights files \n" \
+            f"  --data_path  (default {const.DATASET_PATH} )   - path to data yaml execution file  \n" \
+            f"  --prediction_path (required) - path to file / folder to be predicted \n" 
     # fmt: on
     return {"header": header, "msg": msg}
 
