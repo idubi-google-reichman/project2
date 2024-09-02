@@ -238,14 +238,6 @@ def execute_all_profiles(
 parser = argparse.ArgumentParser()
 
 
-# taking care of config mechanism priority :
-# 1 - command line arguments
-# 2 - environment variables
-# 3 - const default values
-def get_parameter(parameter_name):
-    return getattr(args, parameter_name)
-
-
 # setting command line arguments
 parser.add_argument(
     "--execution_set",
@@ -278,20 +270,40 @@ parser.add_argument(
 args = parser.parse_args()
 
 
+# taking care of config mechanism priority :
+# 1 - command line arguments
+# 2 - environment variables
+# 3 - const default values
+def get_parameter(parameter_name):
+    LoggerUtility.log_message(
+        "main - app parameters",
+        f" parameter : {parameter_name}  ---> {getattr(args, parameter_name)}",
+        LOG_LEVEL["INFO"],
+    )
+    return getattr(args, parameter_name)
+
+
+# Configure the logger once at the start of your application
+execution_path = set_execution_path(get_parameter("execution_path"))
+log_level_name = get_parameter("log_level")
+LoggerUtility.configure_logger(
+    log_level=LOG_LEVEL[log_level_name], log_file_path=f"{execution_path}"
+)
 # endregion - taking care of configuration
 
 
-execution_path = set_execution_path(get_parameter("execution_path"))
-log_level_name = get_parameter("log_level")
 allow_gpu = get_parameter("use_gpu").lower() == ("true")
 
 # Get the active device name - if gpu us available or cpu only
 device_name = get_active_device_name(allow_gpu=allow_gpu)
-# Configure the logger once at the start of your application
 
-LoggerUtility.configure_logger(
-    log_level=LOG_LEVEL[log_level_name], log_file_path=f"{execution_path}"
+
+LoggerUtility.log_message(
+    "main",
+    f"log level : {log_level_name} , log path:{execution_path}",
+    LOG_LEVEL["INFO"],
 )
+LoggerUtility.log_message("main", f"device name : {device_name}", LOG_LEVEL["INFO"])
 # execute the profiles
 # examples :
 # --------------------------------------------------------------------------------------------
@@ -300,6 +312,13 @@ LoggerUtility.configure_logger(
 #    - execution_set = {"3.E"}  --> only 3.E profile will be executed
 # --------------------------------------------------------------------------------------------
 execution_set = set(get_parameter("execution_set").split(","))
+LoggerUtility.log_message(
+    "main",
+    f"profiles to be execute : {execution_set}",
+    LOG_LEVEL["INFO"],
+)
+
+# exit()
 
 execute_all_profiles(
     device_name=device_name,

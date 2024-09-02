@@ -23,10 +23,18 @@ examples/**/*.jpg
 node_modules
 **/public/**
 **/.history/**
-**/.venv310/**
+
 */backup/*
 */mydata*/*
 *.zip
 *pictures*/
-#*.png
-# **/resources/**
+*.png
+**/resources/**
+**/detect/**
+**/runs/**
+**/resources/**
+**/.venv310/**
+/*venv*/
+**/label-studio/**
+
+
