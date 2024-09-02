@@ -25,14 +25,14 @@ def get_args_help(arg_type):
             f"  --batch_size  (default {const.BATCH} ) - batch size for each iteration \n" \
             f"  --learning_rate (default {const.LEARNING_RATE} ) - learning rate for training -need to be as small as possible \n" \
             f"  --epochs (default {const.EPOCHS} ) - # epochs to execute   \n" \
-            f"  --weights_path(default=none) - (none/best/last/[path]) path to previous trainings weights files \n" \
+            f"  --weights(default=best) - (none/best/last/[path]) path to previous trainings weights files \n" \
             f"  --data_path (default ./resources/dataset/data.yaml ) - path to data yaml execution file  \n"
 
             
         case "validate":
             msg = f"{arg_type} : \n" \
             f"----------------------------------------- \n" \
-            f"  --weights_path (required)  -  best/last/[path] -  path to previous trainings weights files \n" \
+            f"  --weights (required)  -  best/last/[path] -  path to previous trainings weights files \n" \
             f"  --data_path  (default {const.DATASET_PATH} )   -  path to dataset for validation , where data-config-yaml is available \n"
             
 
@@ -40,9 +40,9 @@ def get_args_help(arg_type):
         case "predict":
             msg = f"{arg_type}  : \n" \
             f"----------------------------------------- \n" \
-            f"  --weights_path    (required) --  best/last/[path] -  path to previous trainings weights files \n" \
+            f"  --weights    (required) --  best/last/[path] -  path to previous trainings weights files \n" \
             f"  --data_path  (default {const.DATASET_PATH} )   - path to data yaml execution file  \n" \
-            f"  --prediction_path (required) - path to file / folder to be predicted \n" 
+            f"  --source (or data_path is used as config) - path to file / folder to be predicted \n" 
     # fmt: on
     return {"header": header, "msg": msg}
 
@@ -82,21 +82,19 @@ def init_args():
     train.add_argument("--learning_rate"   , type=float ,default=const.LEARNING_RATE       , help = " learning rate for training -need to be as small as possible")  
     train.add_argument("--epochs"          , type=int ,default=const.EPOCHS              , help = " # epochs to execute")  
     train.add_argument("--data_path"       , type=str ,default=const.DATASET_PATH        , help = " path to data yaml execution file " )
-    train.add_argument("--weights_path"    , type=str , default="none" , help = " path to previous trainings weights files (==last for last execution weights) ")  
-    
-    
+    train.add_argument("--weights"    , type=str , default="best" , help = " path to previous trainings weights files (==best/las/[path]) ")  
 
     validate = subparsers.add_parser("validate", help="validate the already trained model with the validation chunk only, \n" 
                                       "without setting weights , no back propagations")
     validate.add_argument   ("--data_path"       , type=str ,default=const.DATASET_PATH        , help = " path to data yaml execution file " )
-    validate.add_argument("--weights_path"    , type=str ,default="best"  , help = "path to previous trainings weights files")  
+    validate.add_argument("--weights"    , type=str ,default="best"  , help = "path to previous trainings weights files")  
     
     
         
     predict = subparsers.add_parser("predict", help="predict specific path to a file or full directory")
-    predict.add_argument  ("--data_path"       , type=str ,default=const.DATASET_PATH        , help = " path to data yaml execution file " )
-    predict.add_argument("--weights_path"    , type=str ,default="best"  , help = "path to previous trainings weights files")  
-    predict.add_argument("--prediction_path" , type=str , help = "path to file / folder to be predicted" )  
+    predict.add_argument  ("--data_path"  , type=str ,default=const.DATASET_PATH        , help = " path to data yaml execution file " )
+    predict.add_argument("--weights"    , type=str ,default="best"  , help = "path to previous trainings weights files")  
+    predict.add_argument("--source" , type=str , help = "path to file / folder to be predicted" )  
 
     # fmt: on
 
@@ -110,7 +108,7 @@ def init_args():
 
 
 def get_weight_path(args):
-    value = get_parameter(args, "weights_path")
+    value = get_parameter(args, "weights")
     match value.lower():
         case "last" | "best":
             return find_most_recent_pt_file(value.lower())

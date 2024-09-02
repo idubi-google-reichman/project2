@@ -14,7 +14,7 @@ def init_and_login_comet():
     print("Comet SDK logged in")
 
 
-def create_experiment(comet_config):
+def create_experiment(comet_config=None):
     if not comet_config:
         comet_config = get_comet_configuration()
     experiment = comet_ml.Experiment(

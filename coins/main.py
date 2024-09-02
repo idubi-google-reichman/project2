@@ -1,11 +1,9 @@
 import utils.comet_utils as COMET
-
 from ultralytics import YOLO
-
 import os
 
 from datetime import datetime
-import stat
+
 
 import const
 from utils.model_utils import verify_cuda_enabled
@@ -15,20 +13,10 @@ from utils.plot_utils import plot_and_log_curves, plot_confusion_matrix
 
 from app_args import init_args, get_parameter, get_weight_path
 
-
-# exit()
-# Create a new YOLO model from scratch
-
-
-def set_execution_path(base_path, command):
-    fullpath = os.path.join(base_path, command)
-    if not os.path.exists(fullpath):
-        os.makedirs(fullpath)
-        os.chmod(fullpath, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-    return f"{fullpath}/"
+from commands.train import train
+from utils.main_utils import get_execution_path
 
 
-comet_config = COMET.get_comet_configuration()
 if __name__ == "__main__":
     args = init_args()
     if args.help_command:
@@ -40,12 +28,12 @@ if __name__ == "__main__":
     if (not command) or (command not in const.ALL_EXECUTION_MODES):
         print(f"none of the execution modes {const.ALL_EXECUTION_MODES} is recognized ")
         exit(-1)
-    if command == "prepare-dataset":
-        execution_path = get_parameter(args, "path_to_dataset")
-    else:
-        execution_path = set_execution_path(const.EXECUTION_PATH, command)
-        experiment = COMET.create_experiment(comet_config=comet_config)
-        _weights_path = get_weight_path(args)
+
+    if command != "prepare-dataset":
+        # create experiment that will be managed by COMIT
+        experiment = COMET.create_experiment()
+
+    execution_path = get_execution_path(args=args, command=command)
 
     LoggerUtility.configure_logger(
         log_level=LOG_LEVEL["INFO"],
@@ -68,47 +56,14 @@ if __name__ == "__main__":
                 valid_pct=_valid_pct,
             )
         case "train":
-            verify_cuda_enabled()
-            _epochs = get_parameter(args, "epochs")
-            _learning_rate = get_parameter(args, "learning_rate")
-            _batch_size = get_parameter(args, "batch_size")
-            _data_path = get_parameter(args, "data_path")
-            LoggerUtility.log_message(
-                "model train ->  \n ",
-                f"_epochs : {_epochs} /n "
-                + f"_learning_rate : {_learning_rate} /n "
-                + f"_batch_size : {_batch_size} /n "
-                + f"_data_path : {_data_path} /n "
-                + f"_weights_path : {_weights_path}  ",
-                LOG_LEVEL["INFO"],
-            )
-
-            if _weights_path and os.path.exists(_weights_path):
-                model = YOLO(model=_weights_path)
-                for param in model.parameters():
-                    param.requires_grad = True
-            else:
-                model = YOLO(model="yolov8n.yaml")
-
-            if os.path.exists(_data_path):
-                model.train(
-                    data=_data_path,
-                    epochs=_epochs,
-                    lr0=_learning_rate,
-                    batch=_batch_size,
-                    project=execution_path,
-                    name=experiment.name,
-                )
-            else:
-                raise Exception(
-                    "PARAMETER missing  or invalid : the data path for TRAIN is not valid"
-                )
+            train(experiment=experiment, args=args)
         case "validate":
             verify_cuda_enabled()
             _data_path = get_parameter(args, "data_path")
+            _weights = get_weight_path(args)
 
-            if _weights_path and os.path.exists(_weights_path):
-                model = YOLO(model=_weights_path)
+            if _weights and os.path.exists(_weights):
+                model = YOLO(model=_weights)
 
             else:
                 raise Exception(
@@ -123,15 +78,16 @@ if __name__ == "__main__":
         case "predict":
             verify_cuda_enabled()
             _data_path = get_parameter(args, "data_path")
-            _prediction_path = get_parameter(args, "prediction_path")
-            if _weights_path and os.path.exists(_weights_path):
-                model = YOLO(model=_weights_path)
+            _weights = get_weight_path(args)
+            _source = get_parameter(args, "source")
+            if _weights and os.path.exists(_weights):
+                model = YOLO(model=_weights)
             else:
                 raise Exception(
                     "PARAMETER missing  or invalid : the weights path for PREDICTION is not valid"
                 )
-            if _prediction_path and os.path.exists(_prediction_path):
-                predictions = model.predict(source=_prediction_path)
+            if _source and os.path.exists(_source):
+                predictions = model.predict(source=_source)
             elif os.path.exists(_data_path):
                 predictions = model.predict(source=_data_path)
             # LoggerUtility.log_message(
@@ -150,8 +106,8 @@ if __name__ == "__main__":
 # py main.py validate --weight-path=best
 # py main.py predict --weight-path=best
 # py main.py train --epochs=200 --weight-path=best
-# py main.py predict --weight-path=best --prediction_path=".\resources\dataset\test\images"
-# py main.py predict --weight-path=best --prediction_path="d:\projects\AI\deep-learning-class\project2\coins\resources\dataset\test\images"
+# py main.py predict --weight-path=best --source=".\resources\dataset\test\images"
+# py main.py predict --weight-path=best --source="d:\projects\AI\deep-learning-class\project2\coins\resources\dataset\test\images"
 
 
 # py main.py --help-command=prepare-dataset
