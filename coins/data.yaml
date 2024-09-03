@@ -1,0 +1,9 @@
+path: D:\projects\AI\deep-learning-class\project2\coins\resources\dataset
+train: train\images
+val: valid\images
+test: test\images
+names:
+  0: 01-Shekel-Coin
+  1: 10-Shekel-Coin
+  2: 02-Shekel-Coin
+  3: 05-Shekel-Coin

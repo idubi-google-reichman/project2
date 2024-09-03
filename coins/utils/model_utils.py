@@ -6,13 +6,15 @@ import os
 import torch
 
 
-def verify_cuda_enabled():
+def is_cuda_enables():
     if torch.cuda.is_available():
         msg_cuda_enabled = "is"
+        cuda = True
     else:
         msg_cuda_enabled = "is not"
-
+        cuda = True
     print(f"cuda {msg_cuda_enabled} available")
+    return cuda
 
 
 # get the path to last valid best.pt file created in train folder

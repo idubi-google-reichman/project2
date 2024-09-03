@@ -12,7 +12,8 @@ EXECUTION_MODES = {
 }
 
 ALL_EXECUTION_MODES = "prepare-dataset,train,validate,evaluate,predict"
-DATASET_PATH = "./resources/dataset/data.yaml"
+# DATASET_PATH = "./resources/dataset/data.yaml"
+DATASET_PATH = "data.yaml"
 EXECUTION_PATH = "./resources/executions/"
 
 VALIDATION_PCT = 15
@@ -21,7 +22,7 @@ DATASET_USE_PCT = 100
 
 BATCH = 16
 EPOCHS = 40
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.00001
 
 
 PROJECT_PATH = "."
