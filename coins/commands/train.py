@@ -1,14 +1,15 @@
 from utils.logging_utils import LoggerUtility, LOG_LEVEL
 from app_args import get_parameter, get_weight_path
-from utils.model_utils import verify_cuda_enabled
+from utils.model_utils import is_cuda_enables
 from ultralytics import YOLO
-import os
+
 from utils.main_utils import get_execution_path
 import const
+import os
 
 
 def train(experiment, args):
-    verify_cuda_enabled()
+    cuda = is_cuda_enables()
     execution_path = get_execution_path(args=args, command="train")
     _weights = get_weight_path(args)
     _epochs = get_parameter(args, "epochs")
@@ -25,12 +26,9 @@ def train(experiment, args):
         LOG_LEVEL["INFO"],
     )
 
-    if _weights and os.path.exists(_weights):
-        model = YOLO(model=_weights)
-        for param in model.parameters():
-            param.requires_grad = True
-    else:
-        model = YOLO(model="yolov8n.yaml")
+    model = YOLO(model=_weights)
+    for param in model.parameters():
+        param.requires_grad = True
 
     if os.path.exists(_data_path):
         model.train(

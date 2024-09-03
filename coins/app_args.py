@@ -3,6 +3,7 @@ from utils.logging_utils import LOG_LEVEL
 import const
 from utils.logging_utils import LoggerUtility, LOG_LEVEL
 from utils.model_utils import find_most_recent_pt_file
+import os
 
 
 def get_args_help(arg_type):
@@ -113,6 +114,9 @@ def get_weight_path(args):
         case "last" | "best":
             return find_most_recent_pt_file(value.lower())
         case "none":
-            return ""
+            return "yolov8n.pt"
         case _:
-            return value
+            if os.path.exists(value):
+                return value
+            else:
+                return "yolov8n.pt"

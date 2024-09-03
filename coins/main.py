@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 import const
-from utils.model_utils import verify_cuda_enabled
+from utils.model_utils import is_cuda_enables
 from utils.yolo_dataset_utils import prepare_dataset
 from utils.logging_utils import LoggerUtility, LOG_LEVEL
 from utils.plot_utils import plot_and_log_curves, plot_confusion_matrix
@@ -58,8 +58,9 @@ if __name__ == "__main__":
         case "train":
             train(experiment=experiment, args=args)
         case "validate":
-            verify_cuda_enabled()
+            is_cuda_enables()
             _data_path = get_parameter(args, "data_path")
+
             _weights = get_weight_path(args)
 
             if _weights and os.path.exists(_weights):
@@ -76,7 +77,7 @@ if __name__ == "__main__":
                     "PARAMETER missing  or invalid : the data path for VALIDATION is not valid"
                 )
         case "predict":
-            verify_cuda_enabled()
+            is_cuda_enables()
             _data_path = get_parameter(args, "data_path")
             _weights = get_weight_path(args)
             _source = get_parameter(args, "source")
@@ -111,3 +112,12 @@ if __name__ == "__main__":
 
 
 # py main.py --help-command=prepare-dataset
+
+
+# path: D:\projects\AI\deep-learning-class\project2\coins\resources\dataset
+# path: /d/projects/AI/deep-learning-class/project2/coins/resources/datasets
+# names:
+#   0: 01-Shekel-Coin
+#   1: 10-Shekel-Coin
+#   2: 02-Shekel-Coin
+#   3: 05-Shekel-Coin
