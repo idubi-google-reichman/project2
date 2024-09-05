@@ -1,4 +1,4 @@
-path: D:\projects\AI\deep-learning-class\project2\coins\resources\dataset
+path: D:\projects\AI\deep-learning-class\project2\coins\resources\datasets
 train: train\images
 val: valid\images
 test: test\images
