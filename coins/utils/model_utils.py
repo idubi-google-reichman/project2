@@ -20,7 +20,13 @@ def is_cuda_enables():
 # get the path to last valid best.pt file created in train folder
 def find_most_recent_pt_file(pt_file_name="last"):
     # Define the pattern for searching
-    pattern = f"./resources/executions/train/experiment*/weights/{pt_file_name}.pt"
+    if pt_file_name.isnumeric():
+        pattern = (
+            f"./resources/executions/train/experiment_{pt_file_name}/weights/best.pt"
+        )
+    if pt_file_name in "last,best":
+        pattern = f"./resources/executions/train/experiment*/weights/{pt_file_name}.pt"
+
     # Get a list of all files matching the pattern
     matching_files = glob.glob(pattern)
     # Check if any files are found

@@ -11,10 +11,20 @@ EXECUTION_MODES = {
     "PREDICT": 5,
 }
 
-ALL_EXECUTION_MODES = "prepare-dataset,train,validate,evaluate,predict"
-# DATASET_PATH = "./resources/dataset/data.yaml"
-DATASET_PATH = "data.yaml"
+ALL_EXECUTION_MODES = [
+    "prepare-dataset",
+    "train",
+    "validate",
+    "evaluate",
+    "predict",
+    "help",
+]
+RELATIVE_DATASET_BASE_PATH = "./resources/base_dataset"
+RELATIVE_DATASET_PATH = "./resources/datasets"
+DATASET_PATH = "./project2/coins/resources/datasets/data.yaml"
+# DATASET_PATH = "data.yaml"
 EXECUTION_PATH = "./resources/executions/"
+
 
 VALIDATION_PCT = 15
 TRAIN_PCT = 70
@@ -23,6 +33,5 @@ DATASET_USE_PCT = 100
 BATCH = 16
 EPOCHS = 40
 LEARNING_RATE = 0.00001
-
 
 PROJECT_PATH = "."

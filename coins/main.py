@@ -1,7 +1,7 @@
 import utils.comet_utils as COMET
 from ultralytics import YOLO
 import os
-
+import numpy as np
 from datetime import datetime
 
 
@@ -29,6 +29,8 @@ if __name__ == "__main__":
         print(f"none of the execution modes {const.ALL_EXECUTION_MODES} is recognized ")
         exit(-1)
 
+    if command == "help":
+        exit(-1)
     if command != "prepare-dataset":
         # create experiment that will be managed by COMIT
         experiment = COMET.create_experiment()
@@ -77,7 +79,7 @@ if __name__ == "__main__":
                     "PARAMETER missing  or invalid : the data path for VALIDATION is not valid"
                 )
         case "predict":
-            is_cuda_enables()
+            cuda = is_cuda_enables()
             _data_path = get_parameter(args, "data_path")
             _weights = get_weight_path(args)
             _source = get_parameter(args, "source")
@@ -94,30 +96,3 @@ if __name__ == "__main__":
             # LoggerUtility.log_message(
             #     f"predictions results : {predictions[0]} ", LOG_LEVEL("INFO")
             # )
-
-# experiment_name = get_next_experiment_name()
-# model.val()
-# model = YOLO("yolov8n.yaml")
-
-# model = YOLO("yolov10n.yaml")
-# model.train(data="./resources/dataset/data.yaml", epochs=2)
-# model.val(data="./resources/dataset/data.yaml")
-
-# py main.py train --epochs=3 --weight-path=best
-# py main.py validate --weight-path=best
-# py main.py predict --weight-path=best
-# py main.py train --epochs=200 --weight-path=best
-# py main.py predict --weight-path=best --source=".\resources\dataset\test\images"
-# py main.py predict --weight-path=best --source="d:\projects\AI\deep-learning-class\project2\coins\resources\dataset\test\images"
-
-
-# py main.py --help-command=prepare-dataset
-
-
-# path: D:\projects\AI\deep-learning-class\project2\coins\resources\dataset
-# path: /d/projects/AI/deep-learning-class/project2/coins/resources/datasets
-# names:
-#   0: 01-Shekel-Coin
-#   1: 10-Shekel-Coin
-#   2: 02-Shekel-Coin
-#   3: 05-Shekel-Coin
