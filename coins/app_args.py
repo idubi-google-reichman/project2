@@ -87,7 +87,7 @@ def init_args():
 
     validate = subparsers.add_parser("validate", help="validate the already trained model with the validation chunk only, \n" 
                                       "without setting weights , no back propagations")
-    validate.add_argument   ("--data_path"       , type=str ,default=const.RELATIVE_DATASET_PATH        , help = " path to data yaml execution file " )
+    validate.add_argument   ("--data_path"       , type=str ,default=const.DATASET_PATH        , help = " path to data yaml execution file " )
     validate.add_argument("--weights"    , type=str ,default="best"  , help = "path to previous trainings weights files")  
     
     

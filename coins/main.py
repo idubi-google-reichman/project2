@@ -7,7 +7,7 @@ from datetime import datetime
 
 import const
 from utils.model_utils import is_cuda_enables
-from utils.yolo_dataset_utils import prepare_dataset
+from utils.yolo_dataset_utils import prepare_dataset, get_source_from_data_yaml
 from utils.logging_utils import LoggerUtility, LOG_LEVEL
 from utils.plot_utils import plot_and_log_curves, plot_confusion_matrix
 
@@ -89,10 +89,26 @@ if __name__ == "__main__":
                 raise Exception(
                     "PARAMETER missing  or invalid : the weights path for PREDICTION is not valid"
                 )
-            if _source and os.path.exists(_source):
+                # if source is null or not valid pathe and data path exists
+            if (_source != None and os.path.exists(_source)) or os.path.exists(
+                os.path.abspath(_data_path)
+            ):
+                try:
+                    _source = get_source_from_data_yaml(command, _data_path)
+                except Exception as e:
+                    LoggerUtility.log_message(
+                        f"error while trying to get prediction path from data yaml : {e} ",
+                        LOG_LEVEL("ERROR"),
+                    )
+            try:
                 predictions = model.predict(source=_source)
-            elif os.path.exists(_data_path):
-                predictions = model.predict(source=_data_path)
-            # LoggerUtility.log_message(
-            #     f"predictions results : {predictions[0]} ", LOG_LEVEL("INFO")
-            # )
+
+                # for prediction in predictions:
+                #     LoggerUtility.log_message(
+                #         f"predictions results : {parse_prediction(prediction)} ",
+                #         LOG_LEVEL("INFO"),
+                #     )
+            except Exception as e:
+                LoggerUtility.log_message(
+                    f"error while trying to predict : {e} ", LOG_LEVEL("ERROR")
+                )

@@ -21,7 +21,7 @@ ALL_EXECUTION_MODES = [
 ]
 RELATIVE_DATASET_BASE_PATH = "./resources/base_dataset"
 RELATIVE_DATASET_PATH = "./resources/datasets"
-DATASET_PATH = "./project2/coins/resources/datasets/data.yaml"
+DATASET_PATH = "./resources/datasets/data.yaml"
 # DATASET_PATH = "data.yaml"
 EXECUTION_PATH = "./resources/executions/"
 
@@ -32,6 +32,6 @@ DATASET_USE_PCT = 100
 
 BATCH = 16
 EPOCHS = 40
-LEARNING_RATE = 0.00001
+LEARNING_RATE = 0.000000001
 
 PROJECT_PATH = "."
