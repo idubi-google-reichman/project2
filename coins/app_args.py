@@ -26,14 +26,14 @@ def get_args_help(arg_type):
             f"  --batch_size  (default {const.BATCH} ) - batch size for each iteration \n" \
             f"  --learning_rate (default {const.LEARNING_RATE} ) - learning rate for training -need to be as small as possible \n" \
             f"  --epochs (default {const.EPOCHS} ) - # epochs to execute   \n" \
-            f"  --weights(default=best) - (none/best/last/[path]) path to previous trainings weights files \n" \
+            f"  --weights(default=best) - (none/best/last/<experiment version number>/[path]) path to previous trainings weights files \n" \
             f"  --data_path (default ./resources/dataset/data.yaml ) - path to data yaml execution file  \n"
 
             
         case "validate":
             msg = f"{arg_type} : \n" \
             f"----------------------------------------- \n" \
-            f"  --weights (required)  -  best/last/[path] -  path to previous trainings weights files \n" \
+            f"  --weights (required)  -  best/last/[path]/<experiment id> -  path to previous trainings weights files \n" \
             f"  --data_path  (default {const.DATASET_PATH} )   -  path to dataset for validation , where data-config-yaml is available \n"
             
 
@@ -72,8 +72,8 @@ def init_args():
     # setting command line arguments
     # fmt: off
     prepare_ds = subparsers.add_parser("prepare-dataset", help="prepare dataset for training,validation and testing chunks")
-    prepare_ds.add_argument("--path_to_base"    , type=str , default= "./resources/base_dataset", help="path to base dataset used as a blueprint for execution")  
-    prepare_ds.add_argument("--path_to_dataset" , type=str , default= "./resources/dataset"     , help="path to dispatch new dataset to be executed on")  
+    prepare_ds.add_argument("--path_to_base"    , type=str , default=const.RELATIVE_DATASET_BASE_PATH, help="path to base dataset used as a blueprint for execution")  
+    prepare_ds.add_argument("--path_to_dataset" , type=str , default=const.RELATIVE_DATASET_PATH     , help="path to dispatch new dataset to be executed on")  
     prepare_ds.add_argument("--use_pct"         , type=int ,default=const.DATASET_USE_PCT       , help = "portion of base dataset to use")
     prepare_ds.add_argument("--train_pct"       , type=int ,default=const.TRAIN_PCT             , help = "% of dataset prepared for training")  
     prepare_ds.add_argument("--valid_pct"       , type=int ,default=const.VALIDATION_PCT        , help = "% of dataset prepared for validation")  
@@ -98,6 +98,7 @@ def init_args():
     predict.add_argument("--source" , type=str , help = "path to file / folder to be predicted" )  
 
     # fmt: on
+    help = subparsers.add_parser("help", help="help for available commands")
 
     args, unknown_args = parser.parse_known_args()
     # args = parser.parse_args()
@@ -108,11 +109,13 @@ def init_args():
     return args
 
 
+#  if weight is "best"  or "last" or the <execution number>
+#  search for last successful weight
 def get_weight_path(args):
     value = get_parameter(args, "weights")
+    if value.isnumeric() or (value.lower() in ["best", "last"]):
+        return find_most_recent_pt_file(value.lower())
     match value.lower():
-        case "last" | "best":
-            return find_most_recent_pt_file(value.lower())
         case "none":
             return "yolov8n.pt"
         case _:
