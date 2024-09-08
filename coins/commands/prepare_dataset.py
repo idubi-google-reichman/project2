@@ -1,17 +1,17 @@
+from app_args import get_parameter
+from utils.logging_utils import LoggerUtility, LOG_LEVEL
 import os
 import shutil
-import random
 import yaml
-from utils.logging_utils import LoggerUtility, LOG_LEVEL
 
 
-def prepare_dataset(
-    path_to_base,
-    path_to_dataset,
-    use_pct,
-    train_pct=70,
-    valid_pct=15,
-):
+def prepare_dataset(args):
+    path_to_base = get_parameter(args, "path_to_base")
+    path_to_dataset = get_parameter(args, "path_to_dataset")
+    use_pct = int(get_parameter(args, "use_pct"))
+    train_pct = int(get_parameter(args, "train_pct"))
+    valid_pct = int(get_parameter(args, "valid_pct"))
+
     """
     Prepare a dataset for machine learning by splitting it into training, validation, and testing sets.
     test_pct  - will be calculated out of 100% - train - validate
@@ -190,27 +190,6 @@ def prepare_dataset(
     prepare_YOLO_config(
         path_to_dataset,
     )
-
-
-def get_source_from_data_yaml(command, _data_path):
-    with open(_data_path, "r") as file:
-        data = yaml.safe_load(file)
-    path = data["path"]
-
-    match command:
-        case "predict":
-            path = f"{path}/{data['test']}"
-        case "validate":
-            path = f"{path}/{data['val']}"
-        case "train":
-            path = f"{path}/{data['train']}"
-        case _:
-            path = f"{path}/{data['train']}"
-
-    if os.path.exists(path):
-        return path
-    else:
-        raise Exception("Invalid path in data.yaml file")
 
 
 # # Example usage:
