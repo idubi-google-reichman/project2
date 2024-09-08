@@ -14,8 +14,8 @@ def get_args_help(arg_type):
         case "prepare-dataset":
             msg = f"{arg_type} : \n" \
             f"----------------------------------------- \n" \
-            f"  --path_to_base   (default : ./resources/base_dataset) - path to base dataset used as a blueprint for execution \n" \
-            f"  --path_to_dataset  (default : ./resources/dataset) - path to dispatch new dataset to be executed on \n" \
+            f"  --path_to_base   (default : {const.RELATIVE_DATASET_BASE_PATH}) - path to base dataset used as a blueprint for execution \n" \
+            f"  --path_to_dataset  (default : .{const.RELATIVE_DATASET_PATH}/data.yaml ) - path to dispatch new dataset to be executed on \n" \
             f"  --use_pct   (default {const.DATASET_USE_PCT} ) - portion of base dataset to use \n" \
             f"  --train_pct (default {const.TRAIN_PCT}) - % of dataset prepared for training \n" \
             f"  --valid_pct (default {const.VALIDATION_PCT}) - % of dataset prepared for validation \n"
@@ -27,7 +27,7 @@ def get_args_help(arg_type):
             f"  --learning_rate (default {const.LEARNING_RATE} ) - learning rate for training -need to be as small as possible \n" \
             f"  --epochs (default {const.EPOCHS} ) - # epochs to execute   \n" \
             f"  --weights(default=best) - (none/best/last/<experiment version number>/[path]) path to previous trainings weights files \n" \
-            f"  --data_path (default ./resources/dataset/data.yaml ) - path to data yaml execution file  \n"
+            f"  --data_path (default .{const.RELATIVE_DATASET_PATH}/data.yaml ) - path to data yaml execution file  \n"
 
             
         case "validate":
@@ -64,7 +64,9 @@ def init_args():
     # load the environment variables file ./resources/.env
     # load_dotenv("./resources/.env")
     # setting command line parser
-    parser = argparse.ArgumentParser(description="main parser for application")
+    parser = argparse.ArgumentParser(
+        description="main parser for application", prog="main"
+    )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     parser.add_argument(
         "--help-command", type=str, help="Show help for a specific command"
@@ -83,7 +85,7 @@ def init_args():
     train.add_argument("--learning_rate"   , type=float ,default=const.LEARNING_RATE       , help = " learning rate for training -need to be as small as possible")  
     train.add_argument("--epochs"          , type=int ,default=const.EPOCHS              , help = " # epochs to execute")  
     train.add_argument("--data_path"       , type=str ,default=const.DATASET_PATH        , help = " path to data yaml execution file " )
-    train.add_argument("--weights"    , type=str , default="best" , help = " path to previous trainings weights files (==best/las/[path]) ")  
+    train.add_argument("--weights"    , type=str , default="best" , help = " path to previous trainings weights files (none/best/las/[path]) ")  
 
     validate = subparsers.add_parser("validate", help="validate the already trained model with the validation chunk only, \n" 
                                       "without setting weights , no back propagations")
@@ -94,12 +96,10 @@ def init_args():
         
     predict = subparsers.add_parser("predict", help="predict specific path to a file or full directory")
     predict.add_argument  ("--data_path"  , type=str ,default=const.DATASET_PATH        , help = " path to data yaml execution file " )
-    predict.add_argument("--weights"    , type=str ,default="best"  , help = "path to previous trainings weights files")  
+    predict.add_argument  ("--weights"    , type=str ,default="best"  ,  help = " path to previous trainings weights files (none/best/las/[path])")
     predict.add_argument("--source" , type=str , help = "path to file / folder to be predicted" )  
 
-    # fmt: on
-    help = subparsers.add_parser("help", help="help for available commands")
-
+    
     args, unknown_args = parser.parse_known_args()
     # args = parser.parse_args()
     if args.help_command:
